@@ -1,7 +1,8 @@
 #include "MFAsin.h"
 #include "MFConst.h"
-#include "MFMul.h"
+#include "MFDiv.h"
 #include "MFPow.h"
+#include "MFSqrt.h"
 #include "MFSub.h"
 
 
@@ -32,7 +33,7 @@ MFunction* MFAsin::Solve(MVariablesList* variables){
 	MFunction *argument=m_argument->Solve(variables);
 	if (argument->GetType()==MF_CONST){
 		double value=asin(((MFConst*)argument)->GetValue());
-		delete argument;
+		argument->Release();
 		return new MFConst(value);
 	}
 	MFAsin *ret=new MFAsin();
@@ -45,17 +46,16 @@ MFunction* MFAsin::Derivate(MVariablesList *variables){
 	if (m_argument->IsConstant(variables)) return new MFConst(0.0);
 	MFunction *fn=m_argument->Derivate(variables);
 	if (!fn) return NULL;
-	MFMul *ret= new MFMul();
-	ret->SetRhs(fn);
-	MFPow *arg= new MFPow();
+	MFDiv *ret= new MFDiv();
+	ret->SetNum(fn);
+	MFSqrt *arg= new MFSqrt();
 	MFSub *aarg = new MFSub();
 	MFPow *aarghs = new MFPow(m_argument);
 	aarghs->SetExponent(new MFConst(2.0));
 	aarg->SetLhs(new MFConst(1.0));
 	aarg->SetRhs(aarghs);
-	arg->SetBase(aarg);
-	arg->SetExponent(new MFConst(-0.5));
-	ret->SetLhs(arg);
+	arg->SetFn(aarg);
+	ret->SetDenum(arg);
 	return ret;
 }
 
@@ -76,7 +76,7 @@ MSistem* MFAsin::CalcDominum(MSistem *update){
 }
 
 void MFAsin::SetArgument(MFunction *argument){
-	if (m_argument) delete m_argument;
+	if (m_argument) m_argument->Release();
 	m_argument=argument;
 }
 

@@ -32,7 +32,7 @@ MFunction* MFTan::Solve(MVariablesList* variables){
 	MFunction *argument=m_argument->Solve(variables);
 	if (argument->GetType()==MF_CONST){
 		double value=tan(((MFConst*)argument)->GetValue());
-		delete argument;
+		argument->Release();
 		return new MFConst(value);
 	}
 	MFTan *ret=new MFTan();
@@ -71,7 +71,7 @@ MSistem* MFTan::CalcDominum(MSistem *update){
 }
 
 void MFTan::SetArgument(MFunction *argument){
-	if (m_argument) delete m_argument;
+	if (m_argument) m_argument->Release();
 	m_argument=argument;
 }
 

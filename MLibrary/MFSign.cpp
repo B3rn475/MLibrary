@@ -1,72 +1,70 @@
-#include "MFAbs.h"
 #include "MFSign.h"
+#include "MFAbs.h"
 #include "MFConst.h"
 #include "MFMul.h"
 #include "MFDiv.h"
 
-MFAbs::MFAbs(MFunction *fn){
+MFSign::MFSign(MFunction *fn){
 	if (fn) m_fn=fn->Clone();
 	else m_fn=NULL;
-	m_type=MF_ABS;
+	m_type=MF_SIGN;
 }
 
-MFunction* MFAbs::Clone(){
-	return new MFAbs(m_fn);
+MFunction* MFSign::Clone(){
+	return new MFSign(m_fn);
 }
 
-bool MFAbs::IsOk(){
+bool MFSign::IsOk(){
 	if (!m_fn) return false;
 	if (!m_fn->IsOk()) return false;
 	return true;
 }
 
-bool MFAbs::IsConstant(MVariablesList* variables){
+bool MFSign::IsConstant(MVariablesList* variables){
 	if (m_fn)
 		if(!m_fn->IsConstant(variables)) return false;
 	return true;
 }
 
-MFunction* MFAbs::Solve(MVariablesList* variables){
+MFunction* MFSign::Solve(MVariablesList* variables){
 	if (!m_fn) return new MFConst(0.0);
 	MFunction *fn=m_fn->Solve(variables);
 	if (fn->GetType()==MF_CONST){
-		double value=abs(((MFConst*)fn)->GetValue());
+		double value=((MFConst*)fn)->GetValue();
 		fn->Release();
-		return new MFConst(value);
+		if (value == abs(value))
+			return new MFConst(1);
+		return new MFConst(-1);
 	}
-	MFAbs *ret=new MFAbs();
+	MFSign *ret=new MFSign();
 	ret->SetFn(fn);
 	return ret;
 }
 
-MFunction* MFAbs::Derivate(MVariablesList *variables){
+MFunction* MFSign::Derivate(MVariablesList *variables){
 	if (!m_fn) return new MFConst(0.0);
 	if (m_fn->IsConstant(variables)) return new MFConst(0.0);
-	MFunction *fn=m_fn->Derivate(variables);
-	if (!fn) return NULL;
-	MFMul *ret=new MFMul();
-	ret->SetLhs(fn);
-	MFSign *rhs=new MFSign(m_fn);
-	ret->SetRhs(rhs);
+	MFDiv *ret=new MFDiv(NULL,m_fn);
+	ret->SetNum(new MFConst(0.0));
 	return ret;
 }
 
-MVariablesList* MFAbs::GetVariablesList(MVariablesList *list){
+MVariablesList* MFSign::GetVariablesList(MVariablesList *list){
 	if (!m_fn) return list;
 	return m_fn->GetVariablesList(list);
 }
 
-MSistem* MFAbs::CalcDominum(MSistem *update){
+MSistem* MFSign::CalcDominum(MSistem *update){
 	if (!m_fn) return update;
 	return m_fn->CalcDominum(update);
 }
 
-void MFAbs::SetFn(MFunction *fn){
+void MFSign::SetFn(MFunction *fn){
 	if (m_fn) m_fn->Release();
 	m_fn=fn;
 }
 
-void MFAbs::Release(){
+void MFSign::Release(){
 	if (m_fn) m_fn->Release();
 	delete this;
 }

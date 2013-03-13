@@ -39,8 +39,8 @@ MFunction* MFDiv::Solve(MVariablesList* variables){
 	MFunction *denum=m_denum->Solve(variables);
 	if (num->GetType()==MF_CONST && denum->GetType()==MF_CONST){
 		double value=((MFConst*)num)->GetValue()/((MFConst*)denum)->GetValue();
-		delete num;
-		delete denum;
+		num->Release();
+		denum->Release();
 		return new MFConst(value);
 	}
 	MFDiv *ret=new MFDiv();
@@ -89,6 +89,8 @@ MFunction* MFDiv::Derivate(MVariablesList *variables){
 			ndenum->SetExponent(new MFConst(2.0));
 			MFMul *lhs= new MFMul(num,m_denum);
 			MFMul *rhs= new MFMul(denum,m_num);
+			num->Release();
+			denum->Release();
 			nnum->SetLhs(lhs);
 			nnum->SetRhs(rhs);
 			ret->SetNum(nnum);
@@ -115,12 +117,12 @@ MSistem* MFDiv::CalcDominum(MSistem *update){
 }
 
 void MFDiv::SetNum(MFunction *num){
-	if (m_num) delete m_num;
+	if (m_num) m_num->Release();
 	m_num=num;
 }
 
 void MFDiv::SetDenum(MFunction *denum){
-	if (m_denum) delete m_denum;
+	if (m_denum) m_denum->Release();
 	m_denum=denum;
 }
 

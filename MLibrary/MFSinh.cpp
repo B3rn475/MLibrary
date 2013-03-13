@@ -1,44 +1,44 @@
-#include "MFSin.h"
+#include "MFSinh.h"
 #include "MFConst.h"
 #include "MFCos.h"
 #include "MFMul.h"
 
-MFSin::MFSin(MFunction *argument){
+MFSinh::MFSinh(MFunction *argument){
 	if (argument) m_argument=argument->Clone();
 	else m_argument=NULL;
-	m_type=MF_SIN;
+	m_type=MF_SINH;
 }
 
-MFunction* MFSin::Clone(){
-	return new MFSin(m_argument);
+MFunction* MFSinh::Clone(){
+	return new MFSinh(m_argument);
 }
 
-bool MFSin::IsOk(){
+bool MFSinh::IsOk(){
 	if (!m_argument) return false;
 	if (!m_argument->IsOk()) return false;
 	return true;
 }
 
-bool MFSin::IsConstant(MVariablesList* variables){
+bool MFSinh::IsConstant(MVariablesList* variables){
 	if (m_argument)
 		if(!m_argument->IsConstant(variables)) return false;
 	return true;
 }
 
-MFunction* MFSin::Solve(MVariablesList* variables){
+MFunction* MFSinh::Solve(MVariablesList* variables){
 	if (!m_argument) return new MFConst(0.0);
 	MFunction *argument=m_argument->Solve(variables);
 	if (argument->GetType()==MF_CONST){
-		double value=sin(((MFConst*)argument)->GetValue());
+		double value=sinh(((MFConst*)argument)->GetValue());
 		argument->Release();
 		return new MFConst(value);
 	}
-	MFSin *ret=new MFSin();
+	MFSinh *ret=new MFSinh();
 	ret->SetArgument(argument);
 	return ret;
 }
 
-MFunction* MFSin::Derivate(MVariablesList *variables){
+MFunction* MFSinh::Derivate(MVariablesList *variables){
 	if (!m_argument) return NULL;
 	if (m_argument->IsConstant(variables)) return new MFConst(0.0);
 	MFunction *fn=m_argument->Derivate(variables);
@@ -50,22 +50,22 @@ MFunction* MFSin::Derivate(MVariablesList *variables){
 	return ret;
 }
 
-MVariablesList* MFSin::GetVariablesList(MVariablesList *list){
+MVariablesList* MFSinh::GetVariablesList(MVariablesList *list){
 	if (!m_argument) return list;
 	return m_argument->GetVariablesList(list);
 }
 
-MSistem* MFSin::CalcDominum(MSistem *update){
+MSistem* MFSinh::CalcDominum(MSistem *update){
 	if (!m_argument) return update;
 	return m_argument->CalcDominum(update);
 }
 
-void MFSin::SetArgument(MFunction *argument){
+void MFSinh::SetArgument(MFunction *argument){
 	if (m_argument) m_argument->Release();
 	m_argument=argument;
 }
 
-void MFSin::Release(){
+void MFSinh::Release(){
 	if (m_argument)	m_argument->Release();
 	delete this;
 }

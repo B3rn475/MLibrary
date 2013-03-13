@@ -78,7 +78,9 @@
     <ClCompile Include="MFAtan.cpp" />
     <ClCompile Include="MFConst.cpp" />
     <ClCompile Include="MFCos.cpp" />
+    <ClCompile Include="MFCosh.cpp" />
     <ClCompile Include="MFCoTan.cpp" />
+    <ClCompile Include="MFCoTanh.cpp" />
     <ClCompile Include="MFDiv.cpp" />
     <ClCompile Include="MFExp.cpp" />
     <ClCompile Include="MFLn.cpp" />
@@ -87,9 +89,13 @@
     <ClCompile Include="MFMul.cpp" />
     <ClCompile Include="MFOpp.cpp" />
     <ClCompile Include="MFPow.cpp" />
+    <ClCompile Include="MFSign.cpp" />
     <ClCompile Include="MFSin.cpp" />
+    <ClCompile Include="MFSinh.cpp" />
+    <ClCompile Include="MFSqrt.cpp" />
     <ClCompile Include="MFSub.cpp" />
     <ClCompile Include="MFTan.cpp" />
+    <ClCompile Include="MFTanh.cpp" />
     <ClCompile Include="MFVar.cpp" />
     <ClCompile Include="MInterpreter.cpp" />
     <ClCompile Include="MRelation.cpp" />
@@ -106,7 +112,9 @@
     <ClInclude Include="MFAtan.h" />
     <ClInclude Include="MFConst.h" />
     <ClInclude Include="MFCos.h" />
+    <ClInclude Include="MFCosh.h" />
     <ClInclude Include="MFCoTan.h" />
+    <ClInclude Include="MFCoTanh.h" />
     <ClInclude Include="MFDiv.h" />
     <ClInclude Include="MFExp.h" />
     <ClInclude Include="MFLn.h" />
@@ -115,9 +123,13 @@
     <ClInclude Include="MFMul.h" />
     <ClInclude Include="MFOpp.h" />
     <ClInclude Include="MFPow.h" />
+    <ClInclude Include="MFSign.h" />
     <ClInclude Include="MFSin.h" />
+    <ClInclude Include="MFSinh.h" />
+    <ClInclude Include="MFSqrt.h" />
     <ClInclude Include="MFSub.h" />
     <ClInclude Include="MFTan.h" />
+    <ClInclude Include="MFTanh.h" />
     <ClInclude Include="MFunction.h" />
     <ClInclude Include="MFVar.h" />
     <ClInclude Include="MInterpreter.h" />

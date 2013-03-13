@@ -40,8 +40,8 @@ MFunction* MFPow::Solve(MVariablesList* variables){
 	MFunction *exponent=m_exponent->Solve(variables);
 	if (base->GetType()==MF_CONST && exponent->GetType()==MF_CONST){
 		double value=pow(((MFConst*)base)->GetValue(),((MFConst*)exponent)->GetValue());
-		delete base;
-		delete exponent;
+		base->Release();
+		exponent->Release();
 		return new MFConst(value);
 	}
 	MFPow *ret=new MFPow();
@@ -69,13 +69,15 @@ MFunction* MFPow::Derivate(MVariablesList *variables){
 		if (m_exponent->IsConstant(variables)){
 			MFunction *fn=m_base->Derivate(variables);
 			if (!fn) return NULL;
-			MFMul *ret = new MFMul();
+			MFMul *ret = new MFMul(m_exponent);
+			MFMul *rett = new MFMul();
 			MFPow *rhs = new MFPow(m_base);
 			MFSub *exp = new MFSub(m_exponent);
 			exp->SetRhs(new MFConst(1.0));
 			rhs->SetExponent(exp);
-			ret->SetLhs(rhs);
-			ret->SetRhs(fn);
+			rett->SetLhs(rhs);
+			rett->SetRhs(fn);
+			ret->SetRhs(rett);
 			return ret;
 		}else{
 			MFunction *base=m_base->Derivate(variables);
@@ -83,7 +85,6 @@ MFunction* MFPow::Derivate(MVariablesList *variables){
 			MFunction *exp=m_exponent->Derivate(variables);
 			if (!exp){
 				base->Release();
-				delete base;
 				return NULL;
 			}
 			MFMul *ret = new MFMul(this);
@@ -121,12 +122,12 @@ MSistem* MFPow::CalcDominum(MSistem *update){
 }
 
 void MFPow::SetBase(MFunction *base){
-	if (m_base) delete m_base;
+	if (m_base) m_base->Release();
 	m_base=base;
 }
 
 void MFPow::SetExponent(MFunction *exponent){
-	if (m_exponent) delete m_exponent;
+	if (m_exponent) m_exponent->Release();
 	m_exponent=exponent;
 }
 

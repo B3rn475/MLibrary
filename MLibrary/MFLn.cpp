@@ -30,7 +30,7 @@ MFunction* MFLn::Solve(MVariablesList* variables){
 	MFunction *argument=m_argument->Solve(variables);
 	if (argument->GetType()==MF_CONST){
 		double value=log(((MFConst*)argument)->GetValue());
-		delete argument;
+		argument->Release();
 		return new MFConst(value);
 	}
 	MFLn *ret=new MFLn();
@@ -67,7 +67,7 @@ MSistem* MFLn::CalcDominum(MSistem *update){
 }
 
 void MFLn::SetArgument(MFunction *argument){
-	if (m_argument) delete m_argument;
+	if (m_argument) m_argument->Release();
 	m_argument=argument;
 }
 

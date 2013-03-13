@@ -32,7 +32,7 @@ MFunction* MFAtan::Solve(MVariablesList* variables){
 	MFunction *argument=m_argument->Solve(variables);
 	if (argument->GetType()==MF_CONST){
 		double value=atan(((MFConst*)argument)->GetValue());
-		delete argument;
+		argument->Release();
 		return new MFConst(value);
 	}
 	MFAtan *ret=new MFAtan();
@@ -70,7 +70,7 @@ MSistem* MFAtan::CalcDominum(MSistem *update){
 }
 
 void MFAtan::SetArgument(MFunction *argument){
-	if (m_argument) delete m_argument;
+	if (m_argument) m_argument->Release();
 	m_argument=argument;
 }
 

@@ -1,71 +1,81 @@
-#include "MFSin.h"
+#include "MFTanh.h"
 #include "MFConst.h"
-#include "MFCos.h"
+#include "MFPow.h"
 #include "MFMul.h"
+#include "MFSub.h"
+#include "MFOpp.h"
 
-MFSin::MFSin(MFunction *argument){
+MFTanh::MFTanh(MFunction *argument){
 	if (argument) m_argument=argument->Clone();
 	else m_argument=NULL;
-	m_type=MF_SIN;
+	m_type=MF_TANH;
 }
 
-MFunction* MFSin::Clone(){
-	return new MFSin(m_argument);
+MFunction* MFTanh::Clone(){
+	return new MFTanh(m_argument);
 }
 
-bool MFSin::IsOk(){
+bool MFTanh::IsOk(){
 	if (!m_argument) return false;
 	if (!m_argument->IsOk()) return false;
 	return true;
 }
 
-bool MFSin::IsConstant(MVariablesList* variables){
+bool MFTanh::IsConstant(MVariablesList* variables){
 	if (m_argument)
 		if(!m_argument->IsConstant(variables)) return false;
 	return true;
 }
 
-MFunction* MFSin::Solve(MVariablesList* variables){
+MFunction* MFTanh::Solve(MVariablesList* variables){
 	if (!m_argument) return new MFConst(0.0);
 	MFunction *argument=m_argument->Solve(variables);
 	if (argument->GetType()==MF_CONST){
-		double value=sin(((MFConst*)argument)->GetValue());
+		double value=tanh(((MFConst*)argument)->GetValue());
 		argument->Release();
 		return new MFConst(value);
 	}
-	MFSin *ret=new MFSin();
+	MFTanh *ret=new MFTanh();
 	ret->SetArgument(argument);
 	return ret;
 }
 
-MFunction* MFSin::Derivate(MVariablesList *variables){
+MFunction* MFTanh::Derivate(MVariablesList *variables){
 	if (!m_argument) return NULL;
 	if (m_argument->IsConstant(variables)) return new MFConst(0.0);
 	MFunction *fn=m_argument->Derivate(variables);
 	if (!fn) return NULL;
 	MFMul *ret= new MFMul();
 	ret->SetRhs(fn);
-	MFCos *arg= new MFCos(m_argument);
-	ret->SetLhs(arg);
+	MFSub *lhs= new MFSub();
+	MFConst *llhs= new MFConst(1.0);
+	lhs->SetLhs(llhs);
+	MFTanh *arg= new MFTanh(m_argument);
+	MFPow *rhs= new MFPow();
+	MFConst *exp= new MFConst(2.0);
+	rhs->SetBase(arg);
+	rhs->SetExponent(exp);
+	lhs->SetRhs(rhs);
+	ret->SetLhs(lhs);
 	return ret;
 }
 
-MVariablesList* MFSin::GetVariablesList(MVariablesList *list){
+MVariablesList* MFTanh::GetVariablesList(MVariablesList *list){
 	if (!m_argument) return list;
 	return m_argument->GetVariablesList(list);
 }
 
-MSistem* MFSin::CalcDominum(MSistem *update){
+MSistem* MFTanh::CalcDominum(MSistem *update){
 	if (!m_argument) return update;
 	return m_argument->CalcDominum(update);
 }
 
-void MFSin::SetArgument(MFunction *argument){
+void MFTanh::SetArgument(MFunction *argument){
 	if (m_argument) m_argument->Release();
 	m_argument=argument;
 }
 
-void MFSin::Release(){
+void MFTanh::Release(){
 	if (m_argument)	m_argument->Release();
 	delete this;
 }

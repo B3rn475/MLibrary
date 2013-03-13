@@ -21,6 +21,7 @@ bool MFVar::IsConstant(MVariablesList *variables){
 }
 
 MFunction* MFVar::Solve(MVariablesList* variables){
+	if (!variables) return Clone();
 	MVariableElement *element=variables->GetItem(m_name);
 	if (element) return new MFConst(element->GetValue());
 	return Clone();

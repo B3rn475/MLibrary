@@ -28,7 +28,7 @@ MFunction* MFOpp::Solve(MVariablesList* variables){
 	MFunction *fn=m_fn->Solve(variables);
 	if (fn->GetType()==MF_CONST){
 		double value=-((MFConst*)fn)->GetValue();
-		delete fn;
+		fn->Release();
 		return new MFConst(value);
 	}
 	MFOpp *ret=new MFOpp();
@@ -57,7 +57,7 @@ MSistem* MFOpp::CalcDominum(MSistem *update){
 }
 
 void MFOpp::SetFn(MFunction *fn){
-	if (m_fn) delete m_fn;
+	if (m_fn) m_fn->Release();
 	m_fn=fn;
 }
 

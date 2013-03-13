@@ -23,6 +23,12 @@
 #define MF_ATAN 19
 #define MF_ACOTAN 20
 #define MF_ABS 21
+#define MF_SIGN 22
+#define MF_SINH 23
+#define MF_COSH 24
+#define MF_TANH 25
+#define MF_COTANH 26
+#define MF_SQRT 27
 
 #define MF_USER 30
 

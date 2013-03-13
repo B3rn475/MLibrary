@@ -35,8 +35,8 @@ MFunction* MFAdd::Solve(MVariablesList* variables){
 	MFunction *rhs=m_rhs->Solve(variables);
 	if (lhs->GetType()==MF_CONST && rhs->GetType()==MF_CONST){
 		double value=((MFConst*)lhs)->GetValue()+((MFConst*)rhs)->GetValue();
-		delete lhs;
-		delete rhs;
+		lhs->Release();
+		rhs->Release();
 		return new MFConst(value);
 	}
 	MFAdd *ret=new MFAdd();
@@ -82,12 +82,12 @@ MSistem* MFAdd::CalcDominum(MSistem *update){
 }
 
 void MFAdd::SetLhs(MFunction *lhs){
-	if (m_lhs) delete m_lhs;
+	if (m_lhs) m_lhs->Release();
 	m_lhs=lhs;
 }
 
 void MFAdd::SetRhs(MFunction *rhs){
-	if (m_rhs) delete m_rhs;
+	if (m_rhs) m_rhs->Release();
 	m_rhs=rhs;
 }
 

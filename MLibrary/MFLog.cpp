@@ -38,8 +38,8 @@ MFunction* MFLog::Solve(MVariablesList* variables){
 	MFunction *argument=m_argument->Solve(variables);
 	if (base->GetType()==MF_CONST && argument->GetType()==MF_CONST){
 		double value=log(((MFConst*)argument)->GetValue())/log(((MFConst*)base)->GetValue());
-		delete base;
-		delete argument;
+		base->Release();
+		argument->Release();
 		return new MFConst(value);
 	}
 	MFLog *ret=new MFLog();
@@ -82,12 +82,12 @@ MSistem* MFLog::CalcDominum(MSistem *update){
 }
 
 void MFLog::SetBase(MFunction *base){
-	if (m_base) delete m_base;
+	if (m_base) m_base->Release();
 	m_base=base;
 }
 
 void MFLog::SetArgument(MFunction *argument){
-	if (m_argument) delete m_argument;
+	if (m_argument) m_argument->Release();
 	m_argument=argument;
 }
 

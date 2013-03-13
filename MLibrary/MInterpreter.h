@@ -23,10 +23,21 @@
 #include "MFSub.h"
 #include "MFTan.h"
 #include "MFVar.h"
+#include "MFSign.h"
+#include "MFSinh.h"
+#include "MFCosh.h"
+#include "MFTanh.h"
+#include "MFCoTanh.h"
+#include "MFSqrt.h"
 #include "MRelation.h"
 #include "MSistem.h"
 #include "MVariableElement.h"
 #include "MVariablesList.h"
+
+#define MI_OK 0
+#define MI_UNEXPECTED_END 1
+#define MI_UNEXPECTED_CHAR 2
+#define MI_UNKNOWN_FUNCTION 3
 
 struct FListElement{
 	wchar_t op;
@@ -37,13 +48,20 @@ struct FListElement{
 class MInterpreter{
 	protected:
 		unsigned int m_pos;
-	public:
-		wchar_t error[255];
+		int error;
 
 	public:
 		MInterpreter();
 		MFunction *GenerateFunction(const wchar_t*fStr);
 		wchar_t *Clean(wchar_t * str) const;
+		inline int GetLastError()
+		{
+			return error;
+		}
+		inline int GetErrorPosition()
+		{
+			return m_pos;
+		}
 
 	protected:
 		bool AnalizeParentesis(const wchar_t *fStr);

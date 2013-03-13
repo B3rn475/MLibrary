@@ -33,7 +33,7 @@ MFunction* MFAcotan::Solve(MVariablesList* variables){
 	MFunction *argument=m_argument->Solve(variables);
 	if (argument->GetType()==MF_CONST){
 		double value=atan(1/((MFConst*)argument)->GetValue());
-		delete argument;
+		argument->Release();
 		return new MFConst(value);
 	}
 	MFAcotan *ret=new MFAcotan();
@@ -73,7 +73,7 @@ MSistem* MFAcotan::CalcDominum(MSistem *update){
 }
 
 void MFAcotan::SetArgument(MFunction *argument){
-	if (m_argument) delete m_argument;
+	if (m_argument) m_argument->Release();
 	m_argument=argument;
 }
 

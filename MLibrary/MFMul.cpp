@@ -1,5 +1,6 @@
 #include "MFMul.h"
 #include "MFAdd.h"
+#include "MFOpp.h"
 #include "MFConst.h"
 
 MFMul::MFMul(MFunction *lhs,MFunction *rhs){
@@ -36,8 +37,8 @@ MFunction* MFMul::Solve(MVariablesList* variables){
 	MFunction *rhs=m_rhs->Solve(variables);
 	if (lhs->GetType()==MF_CONST && rhs->GetType()==MF_CONST){
 		double value=((MFConst*)lhs)->GetValue()*((MFConst*)rhs)->GetValue();
-		delete lhs;
-		delete rhs;
+		lhs->Release();
+		rhs->Release();
 		return new MFConst(value);
 	}
 	MFMul *ret=new MFMul();
@@ -95,12 +96,12 @@ MSistem* MFMul::CalcDominum(MSistem *update){
 }
 
 void MFMul::SetLhs(MFunction *lhs){
-	if (m_lhs) delete m_lhs;
+	if (m_lhs) m_lhs->Release();
 	m_lhs=lhs;
 }
 
 void MFMul::SetRhs(MFunction *rhs){
-	if (m_rhs) delete m_rhs;
+	if (m_rhs) m_rhs->Release();
 	m_rhs=rhs;
 }
 

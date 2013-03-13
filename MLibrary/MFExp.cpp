@@ -29,7 +29,7 @@ MFunction* MFExp::Solve(MVariablesList* variables){
 	MFunction *exponent=m_exponent->Solve(variables);
 	if (exponent->GetType()==MF_CONST){
 		double value=exp(((MFConst*)exponent)->GetValue());
-		delete exponent;
+		exponent->Release();
 		return new MFConst(value);
 	}
 	MFExp *ret=new MFExp();
@@ -58,7 +58,7 @@ MSistem* MFExp::CalcDominum(MSistem *update){
 }
 
 void MFExp::SetExponent(MFunction *exponent){
-	if (m_exponent) delete m_exponent;
+	if (m_exponent) m_exponent->Release();
 	m_exponent=exponent;
 }
 

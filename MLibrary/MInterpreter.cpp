@@ -4,44 +4,52 @@
 
 MInterpreter::MInterpreter(){
 	m_pos=0;
-	wcscpy(error,L"");
+	error=MI_OK;
 }
 
 MFunction *MInterpreter::GenerateFunction(const wchar_t*fStr){
 	MFunction *ret=NULL;
+	error=MI_OK;
 	m_pos=0;
 	if (!AnalizeParentesis(fStr)) return NULL;
+	m_pos=0;
 	if (!AnalizeCharCoerency(fStr)) return NULL;
+	m_pos=0;
 	if (!AnalizePlane(fStr,&ret)) return NULL;
+	m_pos=0;
 	return ret;
 }
 
-bool MInterpreter::AnalizeParentesis(const wchar_t*fStr){
+bool MInterpreter::AnalizeParentesis(const wchar_t *fStr){
 	if (!fStr){
-		if (fStr) wcscpy(error,L"Inattesa fine della funzione");
+		if (fStr) error=MI_UNEXPECTED_END;
 		return false;
 	}
 	unsigned int  par=0;
-	for (unsigned int  i=0; i<wcslen(fStr);i++){
-		if ('('==*(fStr+i)) par++;
-		if (')'==*(fStr+i)){
+	for (m_pos=0; m_pos<wcslen(fStr);m_pos++){
+		if ('('==*(fStr+m_pos)) par++;
+		if (')'==*(fStr+m_pos)){
 			if (par==0){
-				swprintf(error,L"Inatteso '%c' in %d",*(fStr+i),m_pos);
+				error=MI_UNEXPECTED_CHAR;
 				return false;
 			}
 			par--;
 		}
 	}
-	return (par==0);
+	if (par!=0){
+		error=MI_UNEXPECTED_END;
+		return false;
+	}
+	return true;
 }
 
-bool MInterpreter::AnalizePlane(const wchar_t*fStr, MFunction **pt, wchar_t delimiter){
+bool MInterpreter::AnalizePlane(const wchar_t *fStr, MFunction **pt, wchar_t delimiter){
 	if (wcslen((fStr+m_pos))==0){
-		swprintf(error,L"Inattesa fine della funzione a %d",m_pos);
+		error=MI_UNEXPECTED_END;
 		return false;
 	}
 	if (*(fStr+m_pos)==')' || *(fStr+m_pos)==',' || *(fStr+m_pos)=='*' || *(fStr+m_pos)=='/' || *(fStr+m_pos)=='^'){
-		swprintf(error,L"Inatteso '%c' in %d",*(fStr+m_pos),m_pos);
+		error=MI_UNEXPECTED_CHAR;
 		return false;
 	}
 	FListElement *fpt;
@@ -61,12 +69,16 @@ bool MInterpreter::AnalizePlane(const wchar_t*fStr, MFunction **pt, wchar_t deli
 	return true;
 }
 
-unsigned int MInterpreter::IsFunction(const wchar_t*fStr){
+unsigned int MInterpreter::IsFunction(const wchar_t *fStr){
+		if (wcslen(fStr)<2) return 0;
 		if (_wcsnicmp(fStr,L"pi",2)==0){
-			if (!isalpha(*(fStr+2))) return 2;
+			if (wcslen(fStr)<3) return 2;
+			if (!iswalpha(*(fStr+2))) return 2;
 			return 0;
 		}
+		if (wcslen(fStr)<3) return 0;
 		if (_wcsnicmp(fStr,L"ln(",3)==0)return 3;
+		if (wcslen(fStr)<4) return 0;
 		if (_wcsnicmp(fStr,L"abs(",4)==0)return 4;
 		if (_wcsnicmp(fStr,L"log(",4)==0)return 4;
 		if (_wcsnicmp(fStr,L"sin(",4)==0)return 4;
@@ -74,21 +86,38 @@ unsigned int MInterpreter::IsFunction(const wchar_t*fStr){
 		if (_wcsnicmp(fStr,L"tan(",4)==0)return 4;
 		if (_wcsnicmp(fStr,L"exp(",4)==0)return 4;
 		if (_wcsnicmp(fStr,L"pow(",4)==0)return 4;
+		if (wcslen(fStr)<5) return 0;
+		if (_wcsnicmp(fStr,L"sqrt(",5)==0)return 5;
+		if (_wcsnicmp(fStr,L"sinh(",5)==0)return 5;
+		if (_wcsnicmp(fStr,L"cosh(",5)==0)return 5;
+		if (_wcsnicmp(fStr,L"tanh(",5)==0)return 5;
 		if (_wcsnicmp(fStr,L"asin(",5)==0)return 5;
 		if (_wcsnicmp(fStr,L"acos(",5)==0)return 5;
 		if (_wcsnicmp(fStr,L"atan(",5)==0)return 5;
+		if (_wcsnicmp(fStr,L"sign(",5)==0)return 5;
+		if (wcslen(fStr)<6) return 0;
 		if (_wcsnicmp(fStr,L"log10(",6)==0)return 6;
 		if (_wcsnicmp(fStr,L"cotan(",6)==0)return 6;
+		if (wcslen(fStr)<7) return 0;
+		if (_wcsnicmp(fStr,L"cotanh(",7)==0)return 7;
 		if (_wcsnicmp(fStr,L"acotan(",7)==0)return 7;
 		return 0;
 }
 
 bool MInterpreter::AnalizeFunction(const wchar_t *fStr, MFunction **pt){
-	unsigned int  len=IsFunction((fStr+m_pos));
+	if (wcslen((fStr+m_pos))==0){
+		error=MI_UNEXPECTED_END;
+		return false;
+	}
+	const wchar_t *temps=(fStr+m_pos);
+	unsigned int  len=IsFunction(temps);
 	if (len==0){
 		len=1;
-		while(isalpha(*(fStr+m_pos+len))){
+		while(iswalpha(*(fStr+m_pos+len))){
 			len++;
+			if (0==wcslen((fStr+m_pos+len))){
+				break;
+			}
 		}
 		(*pt)=new MFVar((fStr+m_pos),len);
 		m_pos=m_pos+len;
@@ -157,6 +186,26 @@ bool MInterpreter::AnalizeFunction(const wchar_t *fStr, MFunction **pt){
 				if (p1) p1->Release();
 				if (p2)	p2->Release();
 				return true;
+			}else if (_wcsnicmp(str,L"sqrt(",4)==0){
+				(*pt)=(MFunction*) new  MFSqrt(p1);
+				if (p1) p1->Release();
+				if (p2)	p2->Release();
+				return true;
+			}else if (_wcsnicmp(str,L"cosh(",4)==0){
+				(*pt)=(MFunction*) new  MFCosh(p1);
+				if (p1) p1->Release();
+				if (p2)	p2->Release();
+				return true;
+			}else if (_wcsnicmp(str,L"sinh(",4)==0){
+				(*pt)=(MFunction*) new  MFSinh(p1);
+				if (p1) p1->Release();
+				if (p2)	p2->Release();
+				return true;
+			}else if (_wcsnicmp(str,L"tanh(",4)==0){
+				(*pt)=(MFunction*) new  MFTanh(p1);
+				if (p1) p1->Release();
+				if (p2)	p2->Release();
+				return true;
 			}else if (_wcsnicmp(str,L"asin(",5)==0){
 				(*pt)=(MFunction*) new  MFAsin(p1);
 				if (p1) p1->Release();
@@ -169,12 +218,20 @@ bool MInterpreter::AnalizeFunction(const wchar_t *fStr, MFunction **pt){
 				(*pt)=(MFunction*) new  MFAtan(p1);
 				if (p1) p1->Release();
 				return true;
+			}else if (_wcsnicmp(str,L"sign(",5)==0){
+				(*pt)=(MFunction*) new  MFSign(p1);
+				if (p1) p1->Release();
+				return true;
 			}else if (_wcsnicmp(str,L"log10(",6)==0){
 				(*pt)=(MFunction*) new  MFLog10(p1);
 				if (p1) p1->Release();
 				return true;
 			}else if (_wcsnicmp(str,L"cotan(",6)==0){
 				(*pt)=(MFunction*) new  MFCoTan(p1);
+				if (p1) p1->Release();
+				return true;
+			}else if (_wcsnicmp(str,L"cotanh(",6)==0){
+				(*pt)=(MFunction*) new  MFCoTanh(p1);
 				if (p1) p1->Release();
 				return true;
 			}else if (_wcsnicmp(str,L"acotan(",7)==0){
@@ -184,7 +241,7 @@ bool MInterpreter::AnalizeFunction(const wchar_t *fStr, MFunction **pt){
 			}
 			if (p1)	p1->Release();
 			if (p2) p2->Release();
-			swprintf(error,L"Funzione sconosciuta in %d",m_pos);
+			error=MI_UNKNOWN_FUNCTION;
 			return false;
 		}
 	}
@@ -192,9 +249,9 @@ bool MInterpreter::AnalizeFunction(const wchar_t *fStr, MFunction **pt){
 
 bool MInterpreter::AnalizeCharCoerency(const wchar_t*fStr){
 	wchar_t mask[]=L"(),.+-*/^abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	unsigned int pos=wcsspn(fStr,mask);
-	if (pos==wcslen(fStr)) return true;
-	swprintf(error,L"Inatteso '%c' in %d",*(fStr+pos),pos);
+	m_pos=wcsspn(fStr,mask);
+	if (m_pos==wcslen(fStr)) return true;
+	error=MI_UNEXPECTED_CHAR;
 	return false;
 }
 
@@ -204,6 +261,10 @@ bool MInterpreter::CreateList(const wchar_t *fStr, FListElement **pt, wchar_t de
 	if (*(fStr+m_pos)=='-' || *(fStr+m_pos)=='+'){
 		(*pt)->op=*(fStr+m_pos);
 		m_pos++;
+		if (wcslen((fStr+m_pos))==0){
+		error=MI_UNEXPECTED_END;
+		return false;
+	}
 	}else (*pt)->op='+';
 	FListElement *walker=(*pt);
 	walker->func=NULL;
@@ -213,7 +274,7 @@ bool MInterpreter::CreateList(const wchar_t *fStr, FListElement **pt, wchar_t de
 		if (*(fStr+m_pos)==delimiter){
 			return true;
 		}else{
-			swprintf(error,L"Inatteso '%c' in %d",*(fStr+m_pos),m_pos);
+			error=MI_UNEXPECTED_CHAR;
 			return false;
 		}
 	}
@@ -230,14 +291,14 @@ bool MInterpreter::CreateList(const wchar_t *fStr, FListElement **pt, wchar_t de
 		if (*(fStr+m_pos)==delimiter){
 			return true;
 		}else{
-			swprintf(error,L"Inatteso '%c' in %d",*(fStr+m_pos),m_pos);
+			error=MI_UNEXPECTED_CHAR;
 			return false;
 		}
 	}
 	if (wcslen(fStr)==m_pos){
 		return true;
 	}
-	swprintf(error,L"Inatteso '%c' in %d",*(fStr+m_pos),m_pos);
+	error=MI_UNEXPECTED_CHAR;
 	return false;
 }
 
@@ -312,8 +373,12 @@ bool MInterpreter::ConvertList(FListElement *pt){
 }
 
 bool MInterpreter::ConvertElement(const wchar_t *fStr, MFunction **pt){
+	if (wcslen((fStr+m_pos))==0){
+		error=MI_UNEXPECTED_END;
+		return false;
+	}
 	if (*(fStr+m_pos)=='+' || *(fStr+m_pos)=='-' || *(fStr+m_pos)=='/' || *(fStr+m_pos)=='*' || *(fStr+m_pos)=='^' || *(fStr+m_pos)==')'){
-		swprintf(error,L"Inatteso '%c' in %d",*(fStr+m_pos),m_pos);
+		error=MI_UNEXPECTED_CHAR;
 		return false;
 	}
 	if (isdigit(*(fStr+m_pos))){
@@ -327,6 +392,10 @@ bool MInterpreter::ConvertElement(const wchar_t *fStr, MFunction **pt){
 	}else{
 		if (*(fStr+m_pos)=='('){
 			m_pos++;
+			if (wcslen((fStr+m_pos))==0){
+				error=MI_UNEXPECTED_END;
+				return false;
+			}
 			if (!AnalizePlane(fStr,pt,')')) return false;
 			m_pos++;
 			return true;

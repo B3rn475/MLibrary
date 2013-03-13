@@ -31,7 +31,7 @@ MFunction* MFCos::Solve(MVariablesList* variables){
 	MFunction *argument=m_argument->Solve(variables);
 	if (argument->GetType()==MF_CONST){
 		double value=cos(((MFConst*)argument)->GetValue());
-		delete argument;
+		argument->Release();
 		return new MFConst(value);
 	}
 	MFCos *ret=new MFCos();
@@ -64,7 +64,7 @@ MSistem* MFCos::CalcDominum(MSistem *update){
 }
 
 void MFCos::SetArgument(MFunction *argument){
-	if (m_argument) delete m_argument;
+	if (m_argument) m_argument->Release();
 	m_argument=argument;
 }
 
