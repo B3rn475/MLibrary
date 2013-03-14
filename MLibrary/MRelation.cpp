@@ -1,6 +1,15 @@
 #include "MRelation.h"
 #include "MFConst.h"
 
+#include <limits>
+
+template<typename T> bool isfinite(T arg)
+{
+    return arg == arg && 
+           arg != std::numeric_limits<T>::infinity() &&
+           arg != -std::numeric_limits<T>::infinity();
+}
+
 MRelation::MRelation(int type,MFunction *lhs,MFunction *rhs){
 	m_type=type;
 	m_lhs=lhs->Clone();
@@ -42,7 +51,7 @@ bool MRelation::IsTrue(MVariablesList *variables){
 	if (m_type & MR_MINOR)
 		if (*l<*r) ret = true;
 	if (m_type & MR_FINITE)
-		if (finite(l->GetValue())) ret=true;
+		if (isfinite(l->GetValue())) ret=true;
 	delete l;
 	delete r;
 	return ret;
