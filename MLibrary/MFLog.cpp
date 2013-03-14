@@ -5,7 +5,7 @@
 #include "MFLn.h"
 
 MFLog::MFLog(MFunction *base,MFunction *argument){
-	if (base) this->m_base=argument->Clone();
+	if (base) this->m_base=base->Clone();
 	else m_base=NULL;
 	if (argument) m_argument=argument->Clone();
 	else m_argument=NULL;
