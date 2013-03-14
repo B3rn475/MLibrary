@@ -3,7 +3,7 @@
 
 #include <limits>
 
-template<typename T> bool isfinite(T arg)
+template<typename T> bool is_finite(T arg)
 {
     return arg == arg && 
            arg != std::numeric_limits<T>::infinity() &&
@@ -51,7 +51,7 @@ bool MRelation::IsTrue(MVariablesList *variables){
 	if (m_type & MR_MINOR)
 		if (*l<*r) ret = true;
 	if (m_type & MR_FINITE)
-		if (isfinite(l->GetValue())) ret=true;
+		if (is_finite(l->GetValue())) ret=true;
 	delete l;
 	delete r;
 	return ret;

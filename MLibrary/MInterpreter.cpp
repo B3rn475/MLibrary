@@ -427,7 +427,7 @@ bool MInterpreter::ConvertElement(const wchar_t *fStr, MFunction **pt){
 }
 
 wchar_t *MInterpreter::Clean(wchar_t * str) const{
-	wchar_t *s=L" ";
+	const wchar_t *s=L" ";
 	unsigned int pos=wcscspn(str,s);
 	while(pos!=wcslen(str)){
 		wcscpy((str+pos),(str+pos+1));
