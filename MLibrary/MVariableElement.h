@@ -4,7 +4,7 @@
 #include <math.h>
 #include <float.h>
 #include <malloc.h>
-#include <string.h>
+#include <wchar.h>
 
 #define variables_MAX_NAME_LEN 16
 

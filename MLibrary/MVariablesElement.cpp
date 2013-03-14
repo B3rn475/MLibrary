@@ -9,5 +9,7 @@ MVariableElement::MVariableElement(MVariableElement &origin){
 }
 void MVariableElement::SetName(const wchar_t* name){
 	if (!name) return;
-	wcscpy_s(m_name,variables_MAX_NAME_LEN+1,name);
+	//wcscpy_s(m_name,variables_MAX_NAME_LEN+1,name);
+	wcsncpy(m_name,name, variables_MAX_NAME_LEN+1);
+	*(m_name + variables_MAX_NAME_LEN + 1) = '\0';
 }

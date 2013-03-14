@@ -42,7 +42,7 @@ bool MRelation::IsTrue(MVariablesList *variables){
 	if (m_type & MR_MINOR)
 		if (*l<*r) ret = true;
 	if (m_type & MR_FINITE)
-		if (_finite(l->GetValue())) ret=true;
+		if (finite(l->GetValue())) ret=true;
 	delete l;
 	delete r;
 	return ret;

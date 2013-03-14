@@ -10,7 +10,7 @@
 #include "MFAtan.h"
 #include "MFConst.h"
 #include "MFCos.h"
-#include "MFCotan.h"
+#include "MFCoTan.h"
 #include "MFDiv.h"
 #include "MFExp.h"
 #include "MFLn.h"

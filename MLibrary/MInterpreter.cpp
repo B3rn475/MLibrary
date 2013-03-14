@@ -1,6 +1,7 @@
 #include "MInterpreter.h"
-#include <ctype.h>
+#include <wctype.h>
 #include <stdio.h>
+#include <wchar.h>
 
 MInterpreter::MInterpreter(){
 	m_pos=0;
@@ -9,14 +10,34 @@ MInterpreter::MInterpreter(){
 
 MFunction *MInterpreter::GenerateFunction(const wchar_t*fStr){
 	MFunction *ret=NULL;
+	int len = wcslen(fStr);
+	wchar_t *fStrLower = new wchar_t[len+1];
+	for (int i=0; i<len;i++)
+	{
+		*(fStrLower+i) = towlower(*(fStr+i));
+	}
+	*(fStrLower+len+1)='\0';
 	error=MI_OK;
 	m_pos=0;
-	if (!AnalizeParentesis(fStr)) return NULL;
+	if (!AnalizeParentesis(fStrLower))
+	{
+		delete fStrLower;
+		return NULL;
+	}
 	m_pos=0;
-	if (!AnalizeCharCoerency(fStr)) return NULL;
+	if (!AnalizeCharCoerency(fStrLower))
+	{
+		delete fStrLower;
+		return NULL;
+	}
 	m_pos=0;
-	if (!AnalizePlane(fStr,&ret)) return NULL;
+	if (!AnalizePlane(fStrLower,&ret))
+	{
+		delete fStrLower;
+		return NULL;
+	}
 	m_pos=0;
+	delete fStrLower;
 	return ret;
 }
 
@@ -71,36 +92,36 @@ bool MInterpreter::AnalizePlane(const wchar_t *fStr, MFunction **pt, wchar_t del
 
 unsigned int MInterpreter::IsFunction(const wchar_t *fStr){
 		if (wcslen(fStr)<2) return 0;
-		if (_wcsnicmp(fStr,L"pi",2)==0){
+		if (wcsncmp(fStr,L"pi",2)==0){
 			if (wcslen(fStr)<3) return 2;
 			if (!iswalpha(*(fStr+2))) return 2;
 			return 0;
 		}
 		if (wcslen(fStr)<3) return 0;
-		if (_wcsnicmp(fStr,L"ln(",3)==0)return 3;
+		if (wcsncmp(fStr,L"ln(",3)==0)return 3;
 		if (wcslen(fStr)<4) return 0;
-		if (_wcsnicmp(fStr,L"abs(",4)==0)return 4;
-		if (_wcsnicmp(fStr,L"log(",4)==0)return 4;
-		if (_wcsnicmp(fStr,L"sin(",4)==0)return 4;
-		if (_wcsnicmp(fStr,L"cos(",4)==0)return 4;
-		if (_wcsnicmp(fStr,L"tan(",4)==0)return 4;
-		if (_wcsnicmp(fStr,L"exp(",4)==0)return 4;
-		if (_wcsnicmp(fStr,L"pow(",4)==0)return 4;
+		if (wcsncmp(fStr,L"abs(",4)==0)return 4;
+		if (wcsncmp(fStr,L"log(",4)==0)return 4;
+		if (wcsncmp(fStr,L"sin(",4)==0)return 4;
+		if (wcsncmp(fStr,L"cos(",4)==0)return 4;
+		if (wcsncmp(fStr,L"tan(",4)==0)return 4;
+		if (wcsncmp(fStr,L"exp(",4)==0)return 4;
+		if (wcsncmp(fStr,L"pow(",4)==0)return 4;
 		if (wcslen(fStr)<5) return 0;
-		if (_wcsnicmp(fStr,L"sqrt(",5)==0)return 5;
-		if (_wcsnicmp(fStr,L"sinh(",5)==0)return 5;
-		if (_wcsnicmp(fStr,L"cosh(",5)==0)return 5;
-		if (_wcsnicmp(fStr,L"tanh(",5)==0)return 5;
-		if (_wcsnicmp(fStr,L"asin(",5)==0)return 5;
-		if (_wcsnicmp(fStr,L"acos(",5)==0)return 5;
-		if (_wcsnicmp(fStr,L"atan(",5)==0)return 5;
-		if (_wcsnicmp(fStr,L"sign(",5)==0)return 5;
+		if (wcsncmp(fStr,L"sqrt(",5)==0)return 5;
+		if (wcsncmp(fStr,L"sinh(",5)==0)return 5;
+		if (wcsncmp(fStr,L"cosh(",5)==0)return 5;
+		if (wcsncmp(fStr,L"tanh(",5)==0)return 5;
+		if (wcsncmp(fStr,L"asin(",5)==0)return 5;
+		if (wcsncmp(fStr,L"acos(",5)==0)return 5;
+		if (wcsncmp(fStr,L"atan(",5)==0)return 5;
+		if (wcsncmp(fStr,L"sign(",5)==0)return 5;
 		if (wcslen(fStr)<6) return 0;
-		if (_wcsnicmp(fStr,L"log10(",6)==0)return 6;
-		if (_wcsnicmp(fStr,L"cotan(",6)==0)return 6;
+		if (wcsncmp(fStr,L"log10(",6)==0)return 6;
+		if (wcsncmp(fStr,L"cotan(",6)==0)return 6;
 		if (wcslen(fStr)<7) return 0;
-		if (_wcsnicmp(fStr,L"cotanh(",7)==0)return 7;
-		if (_wcsnicmp(fStr,L"acotan(",7)==0)return 7;
+		if (wcsncmp(fStr,L"cotanh(",7)==0)return 7;
+		if (wcsncmp(fStr,L"acotan(",7)==0)return 7;
 		return 0;
 }
 
@@ -123,14 +144,14 @@ bool MInterpreter::AnalizeFunction(const wchar_t *fStr, MFunction **pt){
 		m_pos=m_pos+len;
 		return true;
 	}else{
-		if (_wcsnicmp((fStr+m_pos),L"pi",2)==0){
+		if (wcsncmp((fStr+m_pos),L"pi",2)==0){
 			(*pt)=new MFConst(2*asin(1.0));
 			m_pos+=2;
 			return true;
 		}else{
 			bool nelem=false;
-			if (_wcsnicmp((fStr+m_pos),L"log(",4)==0) nelem=true;
-			if (_wcsnicmp((fStr+m_pos),L"pow(",4)==0) nelem=true;
+			if (wcsncmp((fStr+m_pos),L"log(",4)==0) nelem=true;
+			if (wcsncmp((fStr+m_pos),L"pow(",4)==0) nelem=true;
 			
 			MFunction *p1=NULL;
 			MFunction *p2=NULL;
@@ -152,89 +173,89 @@ bool MInterpreter::AnalizeFunction(const wchar_t *fStr, MFunction **pt){
 				m_pos++;
 			}
 
-			if (_wcsnicmp(str,L"ln(",3)==0){
+			if (wcsncmp(str,L"ln(",3)==0){
 				(*pt)=(MFunction*) new MFLn(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"abs(",4)==0){
+			}else if (wcsncmp(str,L"abs(",4)==0){
 				(*pt)=(MFunction*) new  MFAbs(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"log(",4)==0){
+			}else if (wcsncmp(str,L"log(",4)==0){
 				(*pt)=(MFunction*) new  MFLog(p1,p2);
 				if (p1) p1->Release();
 				if (p2) p2->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"sin(",4)==0){
+			}else if (wcsncmp(str,L"sin(",4)==0){
 				(*pt)=(MFunction*) new  MFSin(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"cos(",4)==0){
+			}else if (wcsncmp(str,L"cos(",4)==0){
 				(*pt)=(MFunction*) new  MFCos(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"tan(",4)==0){
+			}else if (wcsncmp(str,L"tan(",4)==0){
 				(*pt)=(MFunction*) new  MFTan(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"exp(",4)==0){
+			}else if (wcsncmp(str,L"exp(",4)==0){
 				(*pt)=(MFunction*) new  MFExp(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"pow(",4)==0){
+			}else if (wcsncmp(str,L"pow(",4)==0){
 				(*pt)=(MFunction*) new  MFPow(p1,p2);
 				if (p1) p1->Release();
 				if (p2)	p2->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"sqrt(",4)==0){
+			}else if (wcsncmp(str,L"sqrt(",4)==0){
 				(*pt)=(MFunction*) new  MFSqrt(p1);
 				if (p1) p1->Release();
 				if (p2)	p2->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"cosh(",4)==0){
+			}else if (wcsncmp(str,L"cosh(",4)==0){
 				(*pt)=(MFunction*) new  MFCosh(p1);
 				if (p1) p1->Release();
 				if (p2)	p2->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"sinh(",4)==0){
+			}else if (wcsncmp(str,L"sinh(",4)==0){
 				(*pt)=(MFunction*) new  MFSinh(p1);
 				if (p1) p1->Release();
 				if (p2)	p2->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"tanh(",4)==0){
+			}else if (wcsncmp(str,L"tanh(",4)==0){
 				(*pt)=(MFunction*) new  MFTanh(p1);
 				if (p1) p1->Release();
 				if (p2)	p2->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"asin(",5)==0){
+			}else if (wcsncmp(str,L"asin(",5)==0){
 				(*pt)=(MFunction*) new  MFAsin(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"acos(",5)==0){
+			}else if (wcsncmp(str,L"acos(",5)==0){
 				(*pt)=(MFunction*) new  MFAcos(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"atan(",5)==0){
+			}else if (wcsncmp(str,L"atan(",5)==0){
 				(*pt)=(MFunction*) new  MFAtan(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"sign(",5)==0){
+			}else if (wcsncmp(str,L"sign(",5)==0){
 				(*pt)=(MFunction*) new  MFSign(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"log10(",6)==0){
+			}else if (wcsncmp(str,L"log10(",6)==0){
 				(*pt)=(MFunction*) new  MFLog10(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"cotan(",6)==0){
+			}else if (wcsncmp(str,L"cotan(",6)==0){
 				(*pt)=(MFunction*) new  MFCoTan(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"cotanh(",6)==0){
+			}else if (wcsncmp(str,L"cotanh(",6)==0){
 				(*pt)=(MFunction*) new  MFCoTanh(p1);
 				if (p1) p1->Release();
 				return true;
-			}else if (_wcsnicmp(str,L"acotan(",7)==0){
+			}else if (wcsncmp(str,L"acotan(",7)==0){
 				(*pt)=(MFunction*) new  MFAcotan(p1);
 				if (p1) p1->Release();
 				return true;
@@ -381,10 +402,10 @@ bool MInterpreter::ConvertElement(const wchar_t *fStr, MFunction **pt){
 		error=MI_UNEXPECTED_CHAR;
 		return false;
 	}
-	if (isdigit(*(fStr+m_pos))){
+	if (iswdigit(*(fStr+m_pos))){
 		double value;
 		swscanf((fStr+m_pos),L"%Lf",&value);
-		while(isdigit(*(fStr+m_pos))||*(fStr+m_pos)=='.'){
+		while(iswdigit(*(fStr+m_pos))||*(fStr+m_pos)=='.'){
 			m_pos++;
 		}
 		*pt = new MFConst(value);
