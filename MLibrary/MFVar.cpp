@@ -63,7 +63,11 @@ void MFVar::SetName(const wchar_t *buffer,unsigned int len){
 	}else{
 		m_name=(wchar_t*)malloc((len+1)*sizeof(wchar_t));
 	}
-	wcscpy(m_name,buffer);
+	for (unsigned int i=0; i<len; i++)
+	{
+		*(m_name+i) = *(buffer+i);
+	}
+	*(m_name+len) = L'\0';
 }
 
 void MFVar::Release(){
