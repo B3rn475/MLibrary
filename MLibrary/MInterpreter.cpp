@@ -16,28 +16,28 @@ MFunction *MInterpreter::GenerateFunction(const wchar_t*fStr){
 	{
 		*(fStrLower+i) = towlower(*(fStr+i));
 	}
-	*(fStrLower+len+1)='\0';
+	*(fStrLower+len)='\0';
 	error=MI_OK;
 	m_pos=0;
 	if (!AnalizeParentesis(fStrLower))
 	{
-		delete fStrLower;
+		delete[] fStrLower;
 		return NULL;
 	}
 	m_pos=0;
 	if (!AnalizeCharCoerency(fStrLower))
 	{
-		delete fStrLower;
+		delete[] fStrLower;
 		return NULL;
 	}
 	m_pos=0;
 	if (!AnalizePlane(fStrLower,&ret))
 	{
-		delete fStrLower;
+		delete[] fStrLower;
 		return NULL;
 	}
 	m_pos=0;
-	delete fStrLower;
+	delete[] fStrLower;
 	return ret;
 }
 
